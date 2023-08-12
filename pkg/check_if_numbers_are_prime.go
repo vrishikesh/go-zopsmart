@@ -3,7 +3,6 @@ package pkg
 import (
 	"fmt"
 	"log"
-	"runtime"
 	"sync/atomic"
 	"time"
 )
@@ -12,8 +11,7 @@ func CheckPrimeNumbers() {
 	defer TimeTrack(time.Now())
 	task := make(chan int)
 	out := make(chan string)
-	cores := runtime.NumCPU()
-	workers := int32(cores)
+	workers := int32(4)
 
 	for i := int32(0); i < workers; i++ {
 		go func() {
@@ -28,7 +26,7 @@ func CheckPrimeNumbers() {
 
 	go func() {
 		defer close(task)
-		for i := 1; i <= 1000000; i++ {
+		for i := 1; i <= 100000; i++ {
 			task <- i
 		}
 	}()
@@ -36,10 +34,9 @@ func CheckPrimeNumbers() {
 	for o := range out {
 		log.Println(o)
 	}
-	log.Printf("No of cores used %d", cores)
 }
 
-func checkPrime(task chan int, out chan string) {
+func checkPrime(task <-chan int, out chan<- string) {
 	for n := range task {
 		isPrime := true
 		for i := 2; i < n; i++ {
