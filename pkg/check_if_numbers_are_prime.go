@@ -9,7 +9,7 @@ import (
 )
 
 func CheckPrimeNumbers() {
-	start := time.Now()
+	defer TimeTrack(time.Now())
 	task := make(chan int)
 	out := make(chan string)
 	cores := runtime.NumCPU()
@@ -36,8 +36,6 @@ func CheckPrimeNumbers() {
 	for o := range out {
 		log.Println(o)
 	}
-	elapsed := time.Since(start)
-	log.Printf("Execution time %s", elapsed)
 	log.Printf("No of cores used %d", cores)
 }
 
