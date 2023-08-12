@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"sync/atomic"
@@ -15,8 +16,8 @@ func PingSite(site string) int {
 
 	u, err := url.Parse(site)
 	if err != nil {
-		fmt.Printf("could not parse url: %s\n", err)
-		return http.StatusInternalServerError
+		log.Printf("could not parse url: %s\n", err)
+		return http.StatusBadRequest
 	}
 
 	var workers int32 = 4
@@ -33,7 +34,7 @@ func PingSite(site string) int {
 
 	finalStatus := http.StatusOK
 	for s := range statusChan {
-		fmt.Println(s)
+		log.Println(s)
 		if finalStatus == http.StatusOK && s != http.StatusOK {
 			finalStatus = s
 		}
@@ -49,7 +50,7 @@ func GetStatus(u *url.URL) int {
 		bytes.NewReader([]byte{}),
 	)
 	if err != nil {
-		fmt.Printf("could not create request: %s\n", err)
+		log.Printf("could not create request: %s\n", err)
 		return http.StatusInternalServerError
 	}
 
@@ -64,17 +65,17 @@ func GetStatus(u *url.URL) int {
 		defer res.Body.Close()
 	}
 	if err != nil {
-		fmt.Printf("request failed: %s\n", err)
+		log.Printf("request failed: %s\n", err)
 		return http.StatusInternalServerError
 	}
 
 	_, err = io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Printf("could not read response: %s\n", err)
+		log.Printf("could not read response: %s\n", err)
 		return http.StatusInternalServerError
 	}
 
-	// fmt.Printf("response: %s\n", string(b))
+	// log.Printf("response: %s\n", string(b))
 
 	return http.StatusOK
 }
